@@ -1,0 +1,21 @@
+# Python caches
+__pycache__/
+*.pyc
+
+# Large Datasets & Raw CSV splits
+data/
+raw_cicids/
+raw_cicids2017/
+*.csv
+
+# SQLite DB & Large logs
+*.db
+*.log
+
+# Large PyTorch model weights (optional: push to Git LFS or store as release assets)
+# *.pt
+
+# Virtual Environments
+venv/
+env/
+.env
