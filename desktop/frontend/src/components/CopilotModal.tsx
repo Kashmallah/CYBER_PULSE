@@ -1,0 +1,331 @@
+import React, { useState } from 'react';
+import { FormattedMarkdown } from './FormattedMarkdown';
+import {
+  Terminal,
+  Send,
+  ShieldCheck,
+  KeyRound,
+  Check,
+  RefreshCw,
+  Zap,
+  ExternalLink,
+  Activity,
+  Shield
+} from 'lucide-react';
+
+interface CopilotModalProps {
+  onQueryCopilot: (prompt: string, apiKey?: string) => Promise<{ response: string; guardrails_passed: boolean }>;
+}
+
+interface Message {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  guardrailBlocked?: boolean;
+}
+
+export const CopilotModal: React.FC<CopilotModalProps> = ({ onQueryCopilot }) => {
+  const EMBEDDED_KEY = "AQ.Ab8RN6JjKGAcG1JylvVVkSwI-1TVZ5Fr3dOes7XfJTOVnlhGZQ";
+  const [prompt, setPrompt] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiKey, setApiKey] = useState<string>(() => localStorage.getItem('cp_gemini_key') || EMBEDDED_KEY);
+  const [tempKey, setTempKey] = useState('');
+  const [isEditingKey, setIsEditingKey] = useState(false);
+  const [keySaved, setKeySaved] = useState(false);
+
+  // Sync with backend on mount
+  React.useEffect(() => {
+    const serverUrl = localStorage.getItem('cp_server_url') || 'http://127.0.0.1:8000';
+    fetch(`${serverUrl}/api/settings/gemini-key`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.api_key && data.api_key.trim()) {
+          setApiKey(data.api_key.trim());
+          localStorage.setItem('cp_gemini_key', data.api_key.trim());
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'assistant',
+      content:
+        'CYBER PULSE Autonomous SecOps AI Copilot\nIntegrated with Google Gemini API for real-time generative reasoning, reverse engineering, and incident triage.\n\nType your question below or select a playbook shortcut to begin forensic analysis.',
+      timestamp: new Date().toLocaleTimeString()
+    }
+  ]);
+
+  const handleSaveKey = async () => {
+    const trimmed = tempKey.trim();
+    if (!trimmed) return;
+    setApiKey(trimmed);
+    localStorage.setItem('cp_gemini_key', trimmed);
+
+    // Persist to backend database as well
+    const serverUrl = localStorage.getItem('cp_server_url') || 'http://127.0.0.1:8000';
+    try {
+      await fetch(`${serverUrl}/api/settings/gemini-key`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ api_key: trimmed })
+      });
+    } catch (e) {}
+
+    setKeySaved(true);
+    setTimeout(() => {
+      setKeySaved(false);
+      setIsEditingKey(false);
+      setTempKey('');
+    }, 600);
+  };
+
+  const handleSend = async (customText?: string) => {
+    const textToSend = customText || prompt;
+    if (!textToSend.trim() || isLoading) return;
+
+    const currentKey = apiKey || localStorage.getItem('cp_gemini_key') || EMBEDDED_KEY;
+
+    const userMsg: Message = {
+      role: 'user',
+      content: textToSend,
+      timestamp: new Date().toLocaleTimeString()
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    if (!customText) setPrompt('');
+    setIsLoading(true);
+
+    try {
+      // First attempt backend copilot proxy with persistent server key
+      let aiResponseText = '';
+      try {
+        const res = await onQueryCopilot(textToSend, currentKey);
+        aiResponseText = res.response;
+      } catch (backendErr: any) {
+        // Fallback to direct Gemini API call
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${currentKey}`;
+        const systemPrompt = `You are the CYBER PULSE Tier-3 Autonomous Cybersecurity SOC Expert & Incident Commander.
+Analyze telemetry vectors (MalMem 55D memory dumps, CICIDS 70D network flows, Zero-Day Autoencoder anomaly scores theta).
+Provide clear, highly structured, technical playbooks (e.g. process termination, firewall sinkhole, token revocation, memory forensics).
+FORMATTING RULES:
+1. Do NOT use emojis anywhere in the response.
+2. Structure sections using clean markdown headings (e.g. ## Triage Findings, ### Forensic Indicators, ### Remediation Steps).
+3. Format commands and hunting rules in fenced code blocks with language identifiers (e.g. \`\`\`kusto, \`\`\`powershell, \`\`\`bash).
+4. Use clean bullet points and bold key terms.`;
+
+        const geminiRes = await fetch(geminiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: `${systemPrompt}\n\nUser Incident Query:\n${textToSend}` }
+                ]
+              }
+            ]
+          })
+        });
+
+        if (geminiRes.ok) {
+          const geminiData = await geminiRes.json();
+          aiResponseText =
+            geminiData?.candidates?.[0]?.content?.parts?.[0]?.text ||
+            'No response content generated by Gemini model.';
+        } else {
+          throw new Error(backendErr.message || `Gemini query failed.`);
+        }
+      }
+
+      const botMsg: Message = {
+        role: 'assistant',
+        content: aiResponseText,
+        timestamp: new Date().toLocaleTimeString(),
+        guardrailBlocked: false
+      };
+      setMessages((prev) => [...prev, botMsg]);
+    } catch (err: any) {
+      const errorMsg: Message = {
+        role: 'assistant',
+        content: `**[AI ERROR]** ${err.message || 'Failed to query Gemini API.'}`,
+        timestamp: new Date().toLocaleTimeString(),
+        guardrailBlocked: true
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const quickPrompts = [
+    'SocGholish Remediation Playbook',
+    'Ransomware Isolation Protocol',
+    'Zero-Day Autoencoder Anomaly Triage',
+    'Volumetric SYN Flood Mitigation'
+  ];
+
+  return (
+    <div className="w-full h-full glass-panel rounded-2xl p-5 border border-slate-800 flex flex-col justify-between font-mono text-xs shadow-2xl">
+      {/* Header & Guardrail Status Bar */}
+      <div>
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="flex items-center space-x-3">
+            <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-cyan-400 shadow-sm">
+              <Terminal className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-white tracking-wider uppercase flex items-center space-x-2">
+                <span>AUTONOMOUS SECOPS AI ADVISOR</span>
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 flex items-center space-x-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>GEMINI 1.5 FLASH: ARMED</span>
+                </span>
+              </h2>
+              <div className="text-[10px] text-slate-400 font-mono">Real-Time Threat Intelligence & Incident Reasoning</div>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 text-[10px]">
+            <span className="flex items-center space-x-1.5 bg-slate-900 border border-slate-800 text-emerald-400 px-2.5 py-1 rounded-lg">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>GUARDRAILS: ACTIVE</span>
+            </span>
+            <button
+              onClick={() => {
+                setTempKey(apiKey);
+                setIsEditingKey(!isEditingKey);
+              }}
+              title="Configure Gemini API Key"
+              className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg border transition font-bold bg-slate-900 border-slate-800 text-slate-300 hover:text-white hover:border-cyan-500/40"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
+              <span>KEY: CONFIGURED</span>
+            </button>
+          </div>
+        </div>
+
+        {/* API Key Configuration Banner (Only shown if user explicitly clicked to edit) */}
+        {isEditingKey && (
+          <div className="bg-slate-950/95 border border-purple-500/50 p-3.5 rounded-xl my-3 space-y-2 shadow-lg shadow-purple-500/10 animate-fade-in">
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-purple-300 font-bold flex items-center space-x-1.5">
+                <Zap className="w-3.5 h-3.5 text-purple-400" />
+                <span>Update Gemini API Key (Saved Permanently)</span>
+              </span>
+              <a
+                href="https://aistudio.google.com/app/apikey"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[10px] text-cyan-400 hover:underline flex items-center space-x-1"
+              >
+                <span>Get Key at Google AI Studio</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="password"
+                value={tempKey}
+                onChange={(e) => setTempKey(e.target.value)}
+                placeholder="Paste AIzaSy... API key here"
+                className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-purple-400 text-xs font-mono"
+              />
+              <button
+                onClick={handleSaveKey}
+                disabled={!tempKey.trim()}
+                className="px-4 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-bold flex items-center space-x-1 transition"
+              >
+                {keySaved ? <Check className="w-3.5 h-3.5" /> : null}
+                <span>{keySaved ? 'Saved Permanently!' : 'Save Key'}</span>
+              </button>
+              <button
+                onClick={() => setIsEditingKey(false)}
+                className="px-2 py-1.5 text-slate-400 hover:text-white"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Triage Prompt Pills */}
+        <div className="flex items-center space-x-2 overflow-x-auto py-2.5">
+          <span className="text-[10px] text-slate-500 uppercase whitespace-nowrap">Playbook Shortcuts:</span>
+          {quickPrompts.map((qp, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleSend(qp)}
+              className="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-300 px-2.5 py-1 rounded-full text-[10px] whitespace-nowrap transition hover:border-cyan-400"
+            >
+              {qp}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Messages Stream */}
+      <div className="flex-1 overflow-y-auto space-y-3 py-2 pr-1 max-h-[420px]">
+        {messages.map((m, idx) => {
+          const isUser = m.role === 'user';
+          return (
+            <div
+              key={idx}
+              className={`p-3.5 rounded-xl border leading-relaxed ${
+                isUser
+                  ? 'bg-cyan-950/40 border-cyan-500/50 ml-12 text-slate-100'
+                  : m.guardrailBlocked
+                    ? 'bg-rose-950/60 border-rose-500/60 mr-12 text-rose-200'
+                    : 'bg-slate-900/80 border-slate-800 mr-12 text-slate-200'
+              }`}
+            >
+              <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1.5 border-b border-slate-800/80 pb-1 font-mono">
+                <span className="font-bold uppercase text-cyan-400 flex items-center space-x-1.5">
+                  {isUser ? (
+                    <span>OPERATOR // SOC ANALYST</span>
+                  ) : (
+                    <>
+                      <Terminal className="w-3 h-3 text-cyan-400" />
+                      <span>SECOPS REASONING CORE</span>
+                    </>
+                  )}
+                </span>
+                <span>{m.timestamp}</span>
+              </div>
+              <div className="text-xs leading-normal">
+                <FormattedMarkdown content={m.content} />
+              </div>
+            </div>
+          );
+        })}
+        {isLoading && (
+          <div className="flex items-center space-x-2 text-cyan-400 p-3.5 bg-slate-900 border border-slate-800 rounded-xl mr-12 animate-pulse">
+            <RefreshCw className="w-4 h-4 animate-spin" />
+            <span className="text-xs">Generating live forensic analysis with Gemini 1.5 Flash...</span>
+          </div>
+        )}
+      </div>
+
+      {/* Input Box */}
+      <div className="pt-3 border-t border-slate-800 flex items-center space-x-2">
+        <input
+          type="text"
+          placeholder="Ask AI Copilot for threat analysis, reverse engineering advice, or playbook instructions..."
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 text-xs font-mono"
+        />
+        <button
+          onClick={() => handleSend()}
+          disabled={isLoading || !prompt.trim()}
+          className="bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-black px-5 py-2.5 rounded-lg font-bold flex items-center space-x-1.5 transition"
+        >
+          <Send className="w-3.5 h-3.5" />
+          <span>Query</span>
+        </button>
+      </div>
+    </div>
+  );
+};

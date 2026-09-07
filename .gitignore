@@ -19,3 +19,13 @@ raw_cicids2017/
 venv/
 env/
 .env
+
+# Node dependencies and build artifacts
+node_modules/
+desktop/node_modules/
+dist/
+build/
+
+# Executables, binaries, and portable environments
+*.exe
+node_portable/

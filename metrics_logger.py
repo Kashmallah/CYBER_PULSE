@@ -96,3 +96,58 @@ def compute_all_metrics(y_true, y_pred, y_probs, num_classes):
         "specificity": float(specificity),
         "mcc": float(mcc)
     }
+
+def log_metrics_to_db(server_round, model_type, loss, metrics, db_path="fl_metrics.db"):
+    """
+    Persists evaluation metrics for a federated learning round to the SQLite metrics database.
+    """
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS round_metrics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            round INTEGER,
+            model_type TEXT,
+            loss REAL,
+            accuracy REAL,
+            precision_macro REAL,
+            precision_micro REAL,
+            precision_weighted REAL,
+            recall_macro REAL,
+            recall_micro REAL,
+            recall_weighted REAL,
+            f1_macro REAL,
+            f1_micro REAL,
+            f1_weighted REAL,
+            roc_auc REAL,
+            sensitivity REAL,
+            specificity REAL,
+            mcc REAL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    c.execute("""
+        INSERT INTO round_metrics (
+            round, model_type, loss, accuracy, precision_macro, precision_micro, precision_weighted,
+            recall_macro, recall_micro, recall_weighted, f1_macro, f1_micro, f1_weighted,
+            roc_auc, sensitivity, specificity, mcc
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        server_round, model_type, float(loss),
+        metrics.get("accuracy", 0.0),
+        metrics.get("precision_macro", 0.0),
+        metrics.get("precision_micro", 0.0),
+        metrics.get("precision_weighted", 0.0),
+        metrics.get("recall_macro", 0.0),
+        metrics.get("recall_micro", 0.0),
+        metrics.get("recall_weighted", 0.0),
+        metrics.get("f1_macro", 0.0),
+        metrics.get("f1_micro", 0.0),
+        metrics.get("f1_weighted", 0.0),
+        metrics.get("roc_auc", 0.0),
+        metrics.get("sensitivity", 0.0),
+        metrics.get("specificity", 0.0),
+        metrics.get("mcc", 0.0)
+    ))
+    conn.commit()
+    conn.close()

@@ -1,0 +1,297 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+
+  /* Default Cyberpunk */
+  --cyan-50: 236 254 255;
+  --cyan-100: 207 250 254;
+  --cyan-200: 165 243 252;
+  --cyan-300: 103 232 249;
+  --cyan-400: 0 240 255; /* High intensity cyan #00f0ff */
+  --cyan-500: 6 182 212;
+  --cyan-600: 8 145 178;
+  --cyan-700: 14 116 144;
+  --cyan-800: 21 94 117;
+  --cyan-900: 22 78 99;
+  --cyan-950: 8 30 50;
+  
+  --purple-50: 250 245 255;
+  --purple-100: 243 232 255;
+  --purple-200: 233 213 255;
+  --purple-300: 216 180 254;
+  --purple-400: 192 132 252;
+  --purple-500: 168 85 247;
+  --purple-600: 147 51 234;
+  --purple-700: 126 34 206;
+  --purple-800: 107 33 168;
+  --purple-900: 88 28 135;
+  --purple-950: 59 7 94;
+
+  --slate-50: 248 250 252;
+  --slate-100: 241 245 249;
+  --slate-200: 226 232 240;
+  --slate-300: 203 213 225;
+  --slate-400: 148 163 184;
+  --slate-500: 100 116 139;
+  --slate-600: 71 85 105;
+  --slate-700: 51 65 85;
+  --slate-800: 30 41 59;
+  --slate-900: 15 20 31; /* #0f141f */
+  --slate-950: 7 9 14; /* #07090e */
+}
+
+[data-theme='matrix'] {
+  --cyan-50: 240 253 244;
+  --cyan-100: 220 252 231;
+  --cyan-200: 187 247 208;
+  --cyan-300: 134 239 172;
+  --cyan-400: 0 255 102; /* Vivid matrix green */
+  --cyan-500: 34 197 94;
+  --cyan-600: 22 163 74;
+  --cyan-700: 21 128 61;
+  --cyan-800: 22 101 52;
+  --cyan-900: 20 83 45;
+  --cyan-950: 5 46 22;
+
+  --purple-50: 240 253 244;
+  --purple-100: 220 252 231;
+  --purple-200: 187 247 208;
+  --purple-300: 134 239 172;
+  --purple-400: 74 222 128;
+  --purple-500: 16 185 129; /* Emerald-500 */
+  --purple-600: 5 150 105;
+  --purple-700: 4 120 87;
+  --purple-800: 6 95 70;
+  --purple-900: 6 70 50;
+  --purple-950: 2 48 32;
+
+  --slate-50: 240 253 244;
+  --slate-100: 220 252 231;
+  --slate-200: 187 247 208;
+  --slate-300: 134 239 172;
+  --slate-400: 74 222 128;
+  --slate-500: 34 197 94;
+  --slate-600: 16 70 35;
+  --slate-700: 12 50 25;
+  --slate-800: 8 30 15;
+  --slate-900: 5 15 8; /* Matrix panel */
+  --slate-950: 2 5 3; /* Matrix base background */
+}
+
+[data-theme='crimson'] {
+  --cyan-50: 255 241 242;
+  --cyan-100: 255 228 230;
+  --cyan-200: 254 205 211;
+  --cyan-300: 253 164 186;
+  --cyan-400: 255 34 68; /* Crimson red */
+  --cyan-500: 244 63 94;
+  --cyan-600: 225 29 72;
+  --cyan-700: 190 24 74;
+  --cyan-800: 159 18 57;
+  --cyan-900: 136 19 55;
+  --cyan-950: 76 5 25;
+
+  --purple-50: 255 251 235;
+  --purple-100: 254 243 199;
+  --purple-200: 253 230 138;
+  --purple-300: 252 211 77;
+  --purple-400: 251 191 36;
+  --purple-500: 245 158 11; /* Amber-500 */
+  --purple-600: 217 119 6;
+  --purple-700: 180 83 9;
+  --purple-800: 146 64 14;
+  --purple-900: 120 53 4;
+  --purple-950: 69 26 3;
+
+  --slate-50: 255 241 242;
+  --slate-100: 255 228 230;
+  --slate-200: 254 205 211;
+  --slate-300: 253 164 186;
+  --slate-400: 251 113 133;
+  --slate-500: 244 63 94;
+  --slate-600: 85 20 25;
+  --slate-700: 65 15 20;
+  --slate-800: 45 12 15;
+  --slate-900: 25 10 12; /* Crimson panel */
+  --slate-950: 12 2 4; /* Crimson base background */
+}
+
+[data-theme='nordic'] {
+  --cyan-50: 240 249 255;
+  --cyan-100: 224 242 254;
+  --cyan-200: 186 230 253;
+  --cyan-300: 125 211 252;
+  --cyan-400: 56 189 248; /* Sky blue */
+  --cyan-500: 14 165 233;
+  --cyan-600: 2 132 199;
+  --cyan-700: 3 105 161;
+  --cyan-800: 7 89 133;
+  --cyan-900: 12 74 110;
+  --cyan-950: 8 47 73;
+
+  --purple-50: 239 246 255;
+  --purple-100: 219 234 254;
+  --purple-200: 191 219 254;
+  --purple-300: 147 197 253;
+  --purple-400: 96 165 250;
+  --purple-500: 59 130 246; /* Royal blue */
+  --purple-600: 37 99 235;
+  --purple-700: 29 78 216;
+  --purple-800: 30 58 138;
+  --purple-900: 23 37 90;
+  --purple-950: 15 23 42;
+
+  --slate-50: 248 250 252;
+  --slate-100: 241 245 249;
+  --slate-200: 226 232 240;
+  --slate-300: 203 213 225;
+  --slate-400: 148 163 184;
+  --slate-500: 100 116 139;
+  --slate-600: 100 116 139;
+  --slate-700: 71 85 105;
+  --slate-800: 51 65 85;
+  --slate-900: 30 41 59; /* Nordic slate panel */
+  --slate-950: 15 23 42; /* Nordic slate base background */
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --cyan-50: 240 249 255;
+  --cyan-100: 224 242 254;
+  --cyan-200: 186 230 253;
+  --cyan-300: 125 211 252;
+  --cyan-400: 2 132 199; /* Deep Sky 600 */
+  --cyan-500: 3 105 161;
+  --cyan-600: 7 89 133;
+  --cyan-700: 12 74 110;
+  --cyan-800: 15 23 42;
+  --cyan-900: 2 132 199;
+  --cyan-950: 224 242 254; /* Light surface accent */
+
+  --purple-50: 250 245 255;
+  --purple-100: 243 232 255;
+  --purple-200: 233 213 255;
+  --purple-300: 216 180 254;
+  --purple-400: 126 34 206; /* Violet 700 */
+  --purple-500: 107 33 168;
+  --purple-600: 88 28 135;
+  --purple-700: 59 7 94;
+  --purple-800: 15 23 42;
+  --purple-900: 126 34 206;
+  --purple-950: 243 232 255; /* Light surface accent */
+
+  --slate-50: 15 23 42; /* Inverted for high-contrast crisp text */
+  --slate-100: 30 41 59;
+  --slate-200: 51 65 85;
+  --slate-300: 71 85 105;
+  --slate-400: 100 116 139;
+  --slate-500: 148 163 184;
+  --slate-600: 203 213 225;
+  --slate-700: 226 232 240;
+  --slate-800: 241 245 249; /* Card borders */
+  --slate-900: 255 255 255; /* Card panels */
+  --slate-950: 248 250 252; /* Main background #f8fafc */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: rgb(var(--slate-950));
+  color: rgb(var(--slate-100));
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+[data-theme='light'] .glass-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.07);
+}
+
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Glassmorphism custom classes */
+.glass-panel {
+  background: rgba(15, 20, 31, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-panel-glow {
+  background: rgba(15, 20, 31, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.05);
+}
+
+.glass-panel-danger {
+  background: rgba(25, 10, 15, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 34, 68, 0.4);
+  box-shadow: 0 0 25px rgba(255, 34, 68, 0.25);
+}
+
+/* Custom Cyber Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 13, 20, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00f0ff;
+}
+
+/* Scanline effect */
+.scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+
+/* Motion Graphics Intro Animations */
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  20% { transform: translate(-2px, 0px) rotate(-0.5deg); }
+  40% { transform: translate(2px, -1px) rotate(0.5deg); }
+  60% { transform: translate(-1px, 2px) rotate(0deg); }
+  80% { transform: translate(1px, -1px) rotate(0.5deg); }
+  100% { transform: translate(0px, 0px) rotate(0deg); }
+}
+
+@keyframes laserWipe {
+  0% { transform: translateX(-100%) scaleX(0.2); opacity: 0; }
+  50% { transform: translateX(0%) scaleX(1); opacity: 1; }
+  100% { transform: translateX(100%) scaleX(0.2); opacity: 0; }
+}
+
+@keyframes zoomIn {
+  0% { transform: scale(0.65); opacity: 0; filter: blur(8px); }
+  100% { transform: scale(1); opacity: 1; filter: blur(0px); }
+}
+
