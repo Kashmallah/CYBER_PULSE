@@ -1,0 +1,26 @@
+# Node dependencies & desktop runtime binaries (Causes GitHub rejection)
+node_modules/
+desktop/node_modules/
+dist/
+build/
+node_portable/
+*.exe
+
+# Large Datasets & Multi-Gigabyte CSV splits
+data/
+raw_cicids/
+raw_cicids2017/
+raw_malmem/
+*.csv
+
+# Model weights & database logs
+*.pt
+*.db
+*.log
+
+# Python virtual environment & cache
+venv/
+env/
+.env
+__pycache__/
+*.pyc

@@ -1,0 +1,35 @@
+{
+  "name": "cyberpulse-frontend",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.102.6",
+    "@react-three/fiber": "^8.15.19",
+    "@tanstack/react-table": "^8.13.2",
+    "clsx": "^2.1.0",
+    "gsap": "^3.15.0",
+    "lucide-react": "^0.344.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "recharts": "^2.12.2",
+    "tailwind-merge": "^2.2.1",
+    "three": "^0.162.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@types/three": "^0.162.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.6"
+  }
+}
