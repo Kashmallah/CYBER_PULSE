@@ -2,6 +2,7 @@
 node_modules/
 desktop/node_modules/
 dist/
+!desktop/frontend/dist/
 build/
 node_portable/
 *.exe
