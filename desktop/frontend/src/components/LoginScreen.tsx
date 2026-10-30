@@ -23,6 +23,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   // Client Node Form State
   const [clientId, setClientId] = useState(() => sessionStorage.getItem('cp_client_node_id') || localStorage.getItem('cp_client_node_id') || 'win-prod-01');
   const [passcode, setPasscode] = useState('client123');
+  const [targetServerUrl, setTargetServerUrl] = useState(() => {
+    return localStorage.getItem('cp_server_url') || serverUrl || 'http://127.0.0.1:8000';
+  });
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -33,9 +36,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     setErrorMsg(null);
 
     try {
-      const activeServerUrl = (serverUrl.includes('localhost') || serverUrl.includes('127.0.0.1')) && (window.location.port === '5174' || window.location.hostname !== '192.168.10.3')
-        ? 'http://192.168.10.3:8000'
-        : serverUrl;
+      const cleanUrl = targetServerUrl.trim().replace(/\/+$/, '');
+      localStorage.setItem('cp_server_url', cleanUrl);
+      const activeServerUrl = cleanUrl;
 
       if (portalRole === 'admin') {
         const response = await fetch(`${activeServerUrl}/api/auth/login/server`, {
@@ -210,9 +213,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400/30"
                 />
               </div>
-              <div className="flex items-center justify-between text-[10px] text-slate-500 px-1 pt-1">
-                <span>Central SOC Host:</span>
-                <span className="text-purple-400 font-mono">192.168.10.3:8000</span>
+              <div className="space-y-1 pt-1">
+                <label className="block text-slate-400 font-bold flex items-center justify-between text-[10px] uppercase">
+                  <span className="flex items-center space-x-1.5">
+                    <Server className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Central SOC Host URL</span>
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={targetServerUrl}
+                  onChange={(e) => setTargetServerUrl(e.target.value)}
+                  placeholder="e.g. http://127.0.0.1:8000 or http://192.168.10.3:8000"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-purple-400 font-mono placeholder-slate-600 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400/30"
+                />
               </div>
             </>
           )}

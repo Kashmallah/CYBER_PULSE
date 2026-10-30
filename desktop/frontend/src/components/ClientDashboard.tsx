@@ -19,13 +19,11 @@ export const ClientDashboard: React.FC = () => {
   const [activeView, setActiveView] = useState<string>('client_hud');
   const [serverUrl, setServerUrl] = useState<string>(() => {
     const saved = localStorage.getItem('cp_server_url');
-    if (saved && !saved.includes('localhost') && !saved.includes('127.0.0.1')) {
-      return saved;
+    if (saved) return saved;
+    if (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      return `${window.location.protocol}//${window.location.hostname}:8000`;
     }
-    if (window.location.port === '5174' || window.location.hostname !== '192.168.10.3') {
-      return 'http://192.168.10.3:8000';
-    }
-    return saved || `${window.location.protocol}//${window.location.hostname || '127.0.0.1'}:8000`;
+    return 'http://127.0.0.1:8000';
   });
   const [geminiKey, setGeminiKey] = useState<string>(() => localStorage.getItem('cp_gemini_key') || '');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
