@@ -12,9 +12,15 @@ echo  Central API:         http://localhost:8000/api
 echo ======================================================================
 echo.
 
+:: 0. Resolve Python Runtime from .venv if present
+set "PY_CMD=python"
+set "PYW_CMD=pythonw"
+if exist "%~dp0.venv\Scripts\python.exe" set "PY_CMD=%~dp0.venv\Scripts\python.exe"
+if exist "%~dp0.venv\Scripts\pythonw.exe" set "PYW_CMD=%~dp0.venv\Scripts\pythonw.exe"
+
 :: 1. Ensure SQLite Database is initialized
 echo [1/4] Initializing Security Database and Threat Catalog...
-python backend\db_init.py
+"%PY_CMD%" backend\db_init.py
 
 :: 2. Ensure Backend Server is running in BACKGROUND on port 8000
 echo.
@@ -23,7 +29,7 @@ netstat -ano | findstr ":8000" | findstr "LISTENING" >nul 2>&1
 if %ERRORLEVEL% EQU 0 goto :backend_ready
 
 echo       Starting FastAPI SOC Backend Server silently in background...
-start "" pythonw backend\server_api.py
+start "" "%PYW_CMD%" backend\server_api.py
 
 echo       Waiting for SOC Server to respond on port 8000...
 set /a tries=0
@@ -45,7 +51,7 @@ if %ERRORLEVEL% EQU 0 (
     echo       Local Sniffer Daemon is already ACTIVE on port 9099.
 ) else (
     echo       Starting Sniffer Daemon silently in background...
-    start "" pythonw live_sniffer.py --client_id win-prod-01 --os_type windows --server_ws ws://127.0.0.1:8000/ws/agent
+    start "" "%PYW_CMD%" live_sniffer.py --client_id win-prod-01 --os_type windows --server_ws ws://127.0.0.1:8000/ws/agent
     echo       Sniffer daemon initiated.
 )
 
