@@ -6,6 +6,7 @@ dist/
 build/
 node_portable/
 *.exe
+!CyberPulse_Client_Setup.exe
 
 # Large Datasets & Multi-Gigabyte CSV splits
 data/
