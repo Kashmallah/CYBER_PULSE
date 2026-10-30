@@ -28,3 +28,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
 
 echo.
 pause
+

@@ -1608,6 +1608,8 @@ if not os.path.exists(os.path.join(FRONTEND_DIST, "index.html")):
         FRONTEND_DIST = FALLBACK_DIST
 if os.path.exists(os.path.join(FRONTEND_DIST, "assets")):
     app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND_DIST, "assets")), name="assets")
+    app.mount("/server/assets", StaticFiles(directory=os.path.join(FRONTEND_DIST, "assets")), name="server_assets")
+    app.mount("/client/assets", StaticFiles(directory=os.path.join(FRONTEND_DIST, "assets")), name="client_assets")
 
 @app.get("/")
 def read_root():
@@ -1625,6 +1627,11 @@ def read_root():
 
 @app.get("/{full_path:path}")
 def catch_all_routes(full_path: str):
+    if "assets/" in full_path:
+        asset_rel = full_path.split("assets/", 1)[1]
+        asset_file = os.path.join(FRONTEND_DIST, "assets", asset_rel)
+        if os.path.exists(asset_file):
+            return FileResponse(asset_file)
     if full_path.startswith("api") or full_path.startswith("ws") or full_path.startswith("docs") or full_path.startswith("openapi.json") or full_path.startswith("download") or full_path == "install.ps1" or full_path == "install":
         raise HTTPException(status_code=404, detail=f"API route /{full_path} not found")
     index_file = os.path.join(FRONTEND_DIST, "index.html")
