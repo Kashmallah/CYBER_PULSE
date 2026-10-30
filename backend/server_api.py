@@ -1602,6 +1602,10 @@ def get_onboarding_page():
 # 10. Static Frontend Serving & Root Fallback
 # ==========================================
 FRONTEND_DIST = os.path.join(ROOT_DIR, "desktop", "frontend", "dist")
+if not os.path.exists(os.path.join(FRONTEND_DIST, "index.html")):
+    FALLBACK_DIST = os.path.join(ROOT_DIR, "client_enclave", "web")
+    if os.path.exists(os.path.join(FALLBACK_DIST, "index.html")):
+        FRONTEND_DIST = FALLBACK_DIST
 if os.path.exists(os.path.join(FRONTEND_DIST, "assets")):
     app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND_DIST, "assets")), name="assets")
 
